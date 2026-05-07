@@ -2,4 +2,30 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="charcoal_dark">#FF121212</color>
+    <color name="slate_grey">#FF2C3E50</color>
+    <color name="cool_grey">#FF95A5A6</color>
+    <color name="silver_mist">#FFBDC3C7</color>
+    <color name="sunset_orange">#FFE67E22</color>
+    <color name="chili_red">#FFE74C3C</color>
+    <color name="golden_sand">#FFF1C40F</color>
+    <color name="deep_rose">#FFC0392B</color>
+    <color name="soft_peach">#FFFFAB91</color>
+    <color name="emerald_green">#FF2ECC71</color>
+    <color name="sea_foam">#FF1ABC9C</color>
+    <color name="deep_forest">#FF27AE60</color>
+    <color name="mint_fresh">#FFA3E4D7</color>
+    <color name="royal_blue">#FF2980B9</color>
+    <color name="sky_bright">#FF3498DB</color>
+    <color name="midnight_blue">#FF2C3E50</color>
+    <color name="deep_ocean">#FF1B4F72</color>
+    <color name="amethyst_purple">#FF9B59B6</color>
+    <color name="deep_plum">#FF8E44AD</color>
+    <color name="electric_violet">#FF6C3483</color>
+    <color name="soft_magenta">#FFD988B9</color>
+    <color name="cloud_white">#FFECF0F1</color>
+    <color name="warm_ivory">#FFFDF5E6</color>
+    <color name="soft_cream">#FFFFF9C4</color>
+    <color name="pale_sky">#FFD6EAF8</color>
+    <color name="desert_sand">#FFEDBB99</color>
 </resources>

@@ -9,6 +9,6 @@ import retrofit2.http.Query;
 public interface RetrofitCIMA {
 
     @GET("medicamentos")
-    Call<List<Medicamentos>> buscarMedicamentos(@Query("nombre") String nombreBuscado);
+    Call<RespuestaCIMA> buscarMedicamentos(@Query("nombre") String nombreBuscado);
 
 }

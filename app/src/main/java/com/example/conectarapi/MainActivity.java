@@ -4,6 +4,11 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 
+import com.example.conectarapi.apis.cima.ConexionCIMA;
+import com.example.conectarapi.apis.cima.Medicamentos;
+import com.example.conectarapi.apis.cima.MedicamentosAdapter;
+import com.example.conectarapi.apis.cima.RespuestaCIMA;
+import com.example.conectarapi.apis.cima.RetrofitCIMA;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,72 +22,89 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.conectarapi.databinding.ActivityMainBinding;
+import com.google.android.material.textfield.TextInputEditText;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+// ... tus imports actuales ...
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
-    private ActivityMainBinding binding;
+    Button botonBuscar;
+    TextInputEditText texto;
+    RecyclerView rvMedicamentos;
+    MedicamentosAdapter adapter;
+    // Es importante inicializar la lista aquí para que el adapter no reciba un null
+    List<Medicamentos> listaMedicamentos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        // 1. Vinculación de vistas
+        botonBuscar = findViewById(R.id.buscar);
+        texto = findViewById(R.id.nombre);
+        rvMedicamentos = findViewById(R.id.rvMedicamentos);
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        setSupportActionBar(binding.toolbar);
+        // 2. Configuración del RecyclerView
+        rvMedicamentos.setLayoutManager(new LinearLayoutManager(this));
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        // 3. INICIALIZACIÓN DEL ADAPTER (Esto faltaba)
+        // Le pasamos la lista vacía que creamos arriba
+        adapter = new MedicamentosAdapter(listaMedicamentos);
+        rvMedicamentos.setAdapter(adapter);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
+        // 4. Evento Click
+        botonBuscar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAnchorView(R.id.fab)
-                        .setAction("Action", null).show();
+            public void onClick(View v) {
+                String nombreMedicamento = texto.getText().toString().trim();
+                if (!nombreMedicamento.isEmpty()) {
+                    realizarBusqueda(nombreMedicamento);
+                } else {
+                    texto.setError("Escribe un nombre");
+                }
             }
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    private void realizarBusqueda(String nombre) {
+        RetrofitCIMA servicio = ConexionCIMA.getApiService();
+        Call<RespuestaCIMA> llamada = servicio.buscarMedicamentos(nombre);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        llamada.enqueue(new Callback<RespuestaCIMA>() {
+            @Override
+            public void onResponse(Call<RespuestaCIMA> call, Response<RespuestaCIMA> response) {
+                if(response.isSuccessful() && response.body() != null) {
+                    // Aquí extraes la lista del objeto respuesta
+                    List<Medicamentos> listaDeApi = response.body().getResultados();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+                    if (listaDeApi != null) {
+                        listaMedicamentos.clear();
+                        listaMedicamentos.addAll(listaDeApi);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
 
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+            @Override
+            public void onFailure(Call<RespuestaCIMA> call, Throwable t) {
+                Snackbar.make(botonBuscar, "Error: " + t.getMessage(), Snackbar.LENGTH_SHORT).show();
+            }
+        });
     }
 }

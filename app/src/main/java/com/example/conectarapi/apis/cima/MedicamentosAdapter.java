@@ -4,11 +4,13 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.conectarapi.R;
 
 import java.util.List;
@@ -44,6 +46,19 @@ public class MedicamentosAdapter extends RecyclerView.Adapter<MedicamentosAdapte
             holder.tvEstado.setText("No comercializado");
             holder.tvEstado.setTextColor(Color.RED);
         }
+
+        String urlImagen = null;
+        if(medicamento.getFotos()!=null && !medicamento.getFotos().isEmpty()){
+            for (int i = 0; i<medicamento.getFotos().size(); i++){
+                urlImagen = medicamento.getFotos().get(i).getUrl();
+                break;
+            }
+            if (urlImagen==null){
+                urlImagen = medicamento.getFotos().get(0).getUrl();
+            }
+        }
+
+        Glide.with(holder.itemView.getContext()).load(urlImagen).centerInside().into(holder.ivMedicamento);
     }
 
     @Override
@@ -53,12 +68,14 @@ public class MedicamentosAdapter extends RecyclerView.Adapter<MedicamentosAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvRegistro, tvEstado;
+        ImageView ivMedicamento;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombre = itemView.findViewById(R.id.tvNombre);
             tvRegistro = itemView.findViewById(R.id.tvRegistro);
             tvEstado = itemView.findViewById(R.id.tvEstado);
+            ivMedicamento = itemView.findViewById(R.id.ivMedicamento);
         }
     }
 }
